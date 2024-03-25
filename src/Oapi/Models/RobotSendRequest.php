@@ -16,6 +16,13 @@ class RobotSendRequest extends Model
     public $access_token;
 
     /**
+     * @example 自定义机器人调用接口的签名密钥
+     *
+     * @var string
+     */
+    public $secret;
+
+    /**
      * @example 消息类型
      *
      * @var string
@@ -66,6 +73,7 @@ class RobotSendRequest extends Model
 
     protected $_name = [
         'access_token' => 'access_token',
+        'secret'       => 'secret',
         'msgtype'      => 'msgtype',
         'text'         => 'text',
         'at'           => 'at',
@@ -86,6 +94,9 @@ class RobotSendRequest extends Model
         $res = [];
         if (null !== $this->access_token) {
             $res['access_token'] = $this->access_token;
+        }
+        if (null !== $this->secret) {
+            $res['secret'] = $this->secret;
         }
         if (null !== $this->msgtype) {
             $res['msgtype'] = $this->msgtype;
@@ -123,6 +134,9 @@ class RobotSendRequest extends Model
         if (isset($map['access_token'])) {
             $model->access_token = $map['access_token'];
         }
+        if (isset($map['secret'])) {
+            $model->secret = $map['secret'];
+        }
         if (isset($map['msgtype'])) {
             $model->msgtype = $map['msgtype'];
         }
@@ -145,5 +159,15 @@ class RobotSendRequest extends Model
             $model->feedCard = $map['feedCard'];
         }
         return $model;
+    }
+
+    public function getSign(int $timestamp): string
+    {
+        $Sign = "";
+        if (null !== $this->secret) {
+            $stringToSign = $timestamp . "\n" . $this->secret;
+            $Sign = hash_hmac("sha256", $stringToSign, $this->secret, true);
+        }
+        return urlencode(base64_encode($Sign));
     }
 }

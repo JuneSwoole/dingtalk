@@ -3,7 +3,7 @@
  * @Author: juneChen && juneswoole@163.com
  * @Date: 2024-03-15 16:42:14
  * @LastEditors: juneChen && juneswoole@163.com
- * @LastEditTime: 2024-03-18 19:52:45
+ * @LastEditTime: 2024-03-25 15:54:27
  * @Description: 机器人接口
  * 
  */
@@ -42,6 +42,12 @@ class RobotClient
                 "access_token" => $request->access_token
             ]
         ];
+        $timestamp = intval(microtime(true) * 1000);
+        $Sign = $request->getSign($timestamp);
+        if (!empty($Sign)) {
+            $_options['query']['timestamp'] = $timestamp;
+            $_options['query']['sign'] = $Sign;
+        }
         $_response = self::client()->send($_request, $_options);
         $_body = $_response->getBody();
         if ($_body->isSeekable()) {
